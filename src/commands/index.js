@@ -3,10 +3,11 @@ const play = require('./music/play');
 const skip = require('./music/skip');
 const stop = require('./music/stop');
 const queue = require('./music/queue');
+const config = require('./admin/config');
 
 const commands = new Map();
 
-[play, skip, stop, queue].forEach((cmd) => {
+[play, skip, stop, queue, config].forEach((cmd) => {
   commands.set(cmd.name, cmd);
 });
 
