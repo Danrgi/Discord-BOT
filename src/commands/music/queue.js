@@ -13,7 +13,7 @@ module.exports = {
     }
 
     const description = queue.songs
-      .map((s, i) => `${i === 0 ? '**Tocando agora**' : `${i}.`} ${s.title}`)
+      .map((s, i) => `${i === 0 ? '**Tocando agora ►**' : `${i}.`} ${s.title}`)
       .join('\n');
 
     await message.channel.send(description);

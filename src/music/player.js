@@ -158,7 +158,7 @@ async function connectToVoice(voiceChannel) {
     selfDeaf: true,
   });
 
-  await entersState(connection, VoiceConnectionStatus.Ready, 30_000);
+  await entersState(connection, VoiceConnectionStatus.Ready, 5_000);
   return connection;
 }
 
