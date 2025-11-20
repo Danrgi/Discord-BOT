@@ -5,7 +5,7 @@ const BM_API = 'https://api.battlemetrics.com';
 const BM_TOKEN = process.env.BATTLEMETRICS_TOKEN;
 
 /**
- * Requisição genérica à API do BattleMetrics usando fetch nativo do Node 18+
+ * Requisição genérica à API do BattleMetrics usando fetch nativo
  */
 async function bmRequest(method, url, params = {}) {
   const fullUrl = new URL(BM_API + url);
@@ -44,18 +44,22 @@ async function bmRequest(method, url, params = {}) {
  * Busca um servidor por ID
  */
 async function getServerById(id) {
-  const data = await bmRequest('GET', `/servers/${id}`);
-
-  const s = data.data;
+  const json = await bmRequest('GET', `/servers/${id}`);
+  const s = json.data;
+  const a = s.attributes || {};
+  const details = a.details || {}; // game-specific info (map, mode, etc.)
 
   return {
     id: s.id,
-    name: s.attributes?.name,
-    ip: s.attributes?.ip,
-    port: s.attributes?.port,
-    players: s.attributes?.players,
-    maxPlayers: s.attributes?.maxPlayers,
-    game: s.attributes?.game,
+    name: a.name,
+    status: a.status,        // "online", "offline", etc.
+    address: a.address,      // ex: "play.example.com"
+    ip: a.ip,
+    port: a.port,
+    players: a.players,
+    maxPlayers: a.maxPlayers,
+    country: a.country,      // ex: "US"
+    details,                 // objeto bruto, pra extrair map/mode
   };
 }
 
@@ -70,12 +74,7 @@ async function getServersByIds(ids = []) {
   for (const id of cleanedIds) {
     try {
       const server = await getServerById(id);
-      servers.push({
-        ...server,
-        bmUrl: server.game
-          ? `https://www.battlemetrics.com/servers/${server.game}/${server.id}`
-          : `https://www.battlemetrics.com/servers/${server.id}`,
-      });
+      servers.push(server);
     } catch (err) {
       console.error(`[BattleMetrics] Falha ao buscar servidor ${id}`, err);
     }

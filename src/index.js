@@ -2,6 +2,7 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { PREFIX, DISCORD_TOKEN } = require('./config');
 const commands = require('./commands');
+const { SQUAD_REFRESH_MS } = require('./constants');
 const { getGuildConfig } = require('./config-store');
 
 const client = new Client({
@@ -21,7 +22,7 @@ client.on('messageCreate', async (message) => {
   const guildConfig = getGuildConfig(guildId);
   const allowedChannelId = guildConfig.allowedChannelId || null;
 
-  // 🔒 Se houver canal configurado para esse servidor, só lê daquele canal
+  // Se houver canal configurado para esse servidor, só lê daquele canal
   if (allowedChannelId && message.channel.id !== allowedChannelId) {
     return;
   }
@@ -44,6 +45,32 @@ client.on('messageCreate', async (message) => {
 });
 
 client.once('ready', () => {
+  // Limpa o canal configurado em cada guild
+  async function clearAllowedChannel() {
+    for (const [guildId, guild] of client.guilds.cache) {
+      try {
+        const cfg = getGuildConfig(guildId);
+        const channelId = cfg.allowedChannelId;
+        if (!channelId) continue;
+
+        const channel = await client.channels.fetch(channelId).catch(() => null);
+        if (!channel) continue;
+
+        const messages = await channel.messages.fetch({ limit: 100 });
+        if (messages.size > 0) {
+          await channel.bulkDelete(messages, true);
+          console.log(
+            `[ClearChat] Limpou ${messages.size} mensagens no canal ${channelId} da guild ${guildId}`
+          );
+        }
+      } catch (err) {
+        console.error('[ClearChat] Erro ao limpar canal:', err);
+      }
+    }
+  }
+
+  // usa o MESMO tempo do cooldown do !squad
+  setInterval(clearAllowedChannel, SQUAD_REFRESH_MS);
   console.log(`Logado como ${client.user.tag}`);
 });
 
