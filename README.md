@@ -81,7 +81,7 @@ Abra um servidor no BattleMetrics:
 
 ```
 https://www.battlemetrics.com/servers/squad/1234567
-                                      ↑ ID aqui
+                                              ↑ ID aqui
 ```
 
 ---
@@ -96,7 +96,7 @@ O bot **limpa automaticamente** o canal configurado **a cada X minutos**, defini
 const SQUAD_REFRESH_MS = 2 * 60 * 1000; // 2 minutos
 ```
 
-Esse mesmo timer é usado como **cooldown do comando !squad**.
+Esse mesmo timer é usado como **cooldown do comando !squad dividido por 2**.
 
 ---
 
