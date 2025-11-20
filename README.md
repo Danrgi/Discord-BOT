@@ -1,151 +1,183 @@
-# 🎵 Discord Music Bot (Node.js + yt-dlp + ffmpeg)
+# 🎵 Discord Music & Squad Server Bot  
+Um **bot avançado para Discord**, escrito em **Node.js**, com:
 
-Um **bot de música para Discord** moderno, utilizando:
+- 🎶 Sistema completo de música (YouTube → yt-dlp → ffmpeg → Discord)
+- 📡 Integração com **BattleMetrics API**
+- 🧹 Limpador automático de canal
+- ⚙️ Painel de configuração por servidor (`!config`)
+- 🛠 Estrutura modular e fácil manutenção
 
--   **Node.js**
--   **discord.js**
--   **@discordjs/voice**
--   **yt-dlp** (streaming de áudio estável do YouTube)
--   **ffmpeg** (conversão do áudio)
--   **play-dl** (para buscar músicas e metadados)
--   Sistema modular de comandos em pastas
-
-Funciona em qualquer servidor de Discord e suporta:
-
-✔ `!play`\
-✔ `!skip`\
-✔ `!stop`\
-✔ `!queue`\
-✔ Fila de músicas por servidor\
-✔ Busca por texto ou link do YouTube\
-✔ Suporte para múltiplos servidores simultaneamente\
-✔ Sistema de comandos modular
-
-------------------------------------------------------------------------
+---
 
 ## 📁 Estrutura do Projeto
 
-    src/
-      index.js
+```
+src/
+  index.js
+  config.js
+  constants.js
+  config-store.js
+  music/
+    player.js
+  services/
+    battlemetrics.js
+  commands/
+    index.js
+    admin/
       config.js
-      music/
-        player.js
-      commands/
-        index.js
-        music/
-          play.js
-          skip.js
-          stop.js
-          queue.js
-    bin/
-      yt-dlp.exe
-    .env
+    music/
+      play.js
+      skip.js
+      stop.js
+      queue.js
+    battlemetrics/
+      squad.js
+data/
+  guild-config.json
+.env
+```
 
-------------------------------------------------------------------------
+---
 
 ## ⚙️ Instalação
 
 ### 1. Clone o repositório
 
-``` bash
+```bash
 git clone https://github.com/SEU_USUARIO/Discord-BOT.git
 cd Discord-BOT
 ```
 
 ### 2. Instale as dependências
 
-``` bash
+```bash
 npm install
 ```
 
 Dependências principais:
 
-``` bash
-npm install discord.js @discordjs/voice play-dl ffmpeg-static
-npm install @discordjs/opus   # ou opusscript se estiver em Windows
+```bash
+npm install discord.js @discordjs/voice ffmpeg-static play-dl opusscript
 ```
 
-Se `@discordjs/opus` falhar no Windows, use:
+---
 
-``` bash
-npm install opusscript
+## 🔧 Configuração
+
+Crie o arquivo `.env`:
+
+```env
+DISCORD_TOKEN=SEU_TOKEN_DO_DISCORD
+PREFIX=!
+BATTLEMETRICS_TOKEN=SEU_TOKEN_DA_API
+BM_SQUAD_SERVERS=ID1,ID2,ID3
 ```
 
-------------------------------------------------------------------------
+### 🔎 Onde pegar o token BattleMetrics?
+Login → Account → API Access → *Create Token*
 
-## 🔥 Configuração
+### 🎯 Onde pegar IDs de servidores?
+Abra um servidor no BattleMetrics:
 
-### 1. Crie o arquivo `.env` na raiz do projeto
+```
+https://www.battlemetrics.com/servers/squad/1234567
+                                      ↑ ID aqui
+```
 
-    DISCORD_TOKEN=SEU_TOKEN_AQUI
-    PREFIX=!
+---
 
-### 2. Instale o **yt-dlp**
+## 🧹 Limpeza Automática do Canal de Comandos
 
-Baixe aqui:\
-https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe
+O bot **limpa automaticamente** o canal configurado **a cada X minutos**, definido em:
 
-Crie a pasta `bin/` na raiz e coloque o executável lá:
+`src/constants.js`:
 
-    bin/yt-dlp.exe
+```js
+const SQUAD_REFRESH_MS = 2 * 60 * 1000; // 2 minutos
+```
 
-Se quiser definir manualmente o caminho no `.env`, adicione:
+Esse mesmo timer é usado como **cooldown do comando !squad**.
 
-    YTDLP_PATH=C:/meu/caminho/yt-dlp.exe
+---
 
-------------------------------------------------------------------------
+## 🛠 Painel de Configuração (`!config`)
 
-## ▶️ Rodando o bot
+### Ver configurações
+```
+!config show
+```
 
-``` bash
+### Definir canal de comandos
+```
+!config setchannel #comandos
+```
+
+### Remover canal de comandos
+```
+!config clearchannel
+```
+
+Configurações ficam salvas em:
+
+```
+data/guild-config.json
+```
+
+---
+
+## 📡 Comando `!squad` (BattleMetrics)
+
+Mostra os servidores configurados em `BM_SQUAD_SERVERS`, com:
+
+- Status
+- Players
+- País
+- Mapa
+- Game Mode
+- IP/Port
+
+Formato estilo “Server Browser”.
+
+---
+
+## 🎼 Comandos de Música
+
+- `!play <url | nome>`  
+- `!skip`  
+- `!stop`  
+- `!queue`
+
+Suporta:
+
+- Fila por servidor  
+- Busca automática por título  
+- Streaming via yt-dlp  
+
+---
+
+## 🧠 Arquivo `constants.js`
+
+Define valores globais usados em:
+
+- Cooldown do `!squad`
+- Timer de limpeza automática
+
+---
+
+## 🚀 Rodando o bot
+
+```bash
 npm start
 ```
 
-Ou
-
-``` bash
-node src/index.js
-```
-
-------------------------------------------------------------------------
-
-## 🧩 Modularidade
-
-Os comandos estão em:
-
-    src/commands/music/
-
-Cada comando é um arquivo separado:
-
--   `play.js`
--   `skip.js`
--   `stop.js`
--   `queue.js`
-
-Para adicionar um novo comando, basta criar um arquivo e registrá-lo em:
-
-    src/commands/index.js
-
-------------------------------------------------------------------------
-
-## 🛠️ Tecnologias utilizadas
-
--   Node.js
--   discord.js
--   @discordjs/voice
--   ffmpeg-static
--   yt-dlp
--   play-dl
-
-------------------------------------------------------------------------
+---
 
 ## 🤝 Contribuições
 
-Sinta-se livre para abrir issues e PRs.\
-Todo código é bem-vindo!
+Sinta‑se livre para enviar PRs ou sugestões!
 
-------------------------------------------------------------------------
+---
 
-## 📝 Licença
+## 📜 Licença
 
-MIT
+MIT License
